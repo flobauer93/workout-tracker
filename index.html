@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#111827" />
+<title>Performance Block 1</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--soft:#eef2f7;--ok:#e8f5ec;--warn:#fff4d6}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:rgba(244,245,247,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.wrap{max-width:760px;margin:auto;padding:16px}.title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.title h1{font-size:22px;margin:0}.small{font-size:12px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff;padding:6px 10px;border-radius:999px;font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.day{cursor:pointer}.day strong{display:block;margin-bottom:4px}.day.rest{opacity:.65}.day.today{outline:2px solid #111827}
+nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}nav button{border:0;background:none;padding:12px 4px;font-weight:600;color:var(--muted)}nav button.active{color:var(--ink)}
+.sectionTitle{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px}.sectionTitle h2{font-size:18px;margin:0}.exercise{border-top:1px solid var(--line);padding:12px 0}.exercise:first-child{border-top:0}.exhead{display:flex;justify-content:space-between;gap:8px}.exname{font-weight:700}.target{font-size:12px;color:var(--muted)}
+.setrow{display:grid;grid-template-columns:42px 1fr 1fr 1fr 34px;gap:7px;align-items:center;margin-top:8px}.setrow.carry{grid-template-columns:42px 1fr 1fr 34px}.setrow.run{grid-template-columns:1fr 1fr 1fr}.setnum{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px;background:white;color:var(--ink)}input[type=checkbox]{width:20px;height:20px}.labels{display:grid;grid-template-columns:42px 1fr 1fr 1fr 34px;gap:7px;font-size:10px;color:var(--muted);margin-top:6px}.labels.carry{grid-template-columns:42px 1fr 1fr 34px}
+button.primary{width:100%;border:0;background:var(--accent);color:white;padding:13px;border-radius:12px;font-weight:700}.secondary{border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:10px;font-weight:600}.row{display:flex;gap:8px}.row>*{flex:1}.note{background:var(--soft);border-radius:12px;padding:10px;font-size:12px;color:#374151}.success{background:var(--ok)}.warning{background:var(--warn)}
+.metric{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}.hidden{display:none!important}.progressBar{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden}.progressBar span{display:block;height:100%;background:#111827}.tag{font-size:11px;padding:4px 7px;border-radius:999px;background:var(--soft)}
+footer{padding:12px 0 80px;color:var(--muted);font-size:11px;text-align:center}@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap title"><div><div class="small">Cycle 1 · Block 1</div><h1>Strength + Aerobic Base</h1><div class="small">6 training weeks + 1 deload</div></div><div class="pill" id="weekPill">Week 1</div></div></header>
+<main class="wrap">
+<section id="todayView"></section>
+<section id="weekView" class="hidden"></section>
+<section id="progressView" class="hidden"></section>
+<section id="programView" class="hidden"></section>
+<footer>Data is stored locally in your browser. Use Export to keep a backup.</footer>
+</main>
+<nav>
+<button data-view="today" class="active">Today</button><button data-view="week">Week</button><button data-view="progress">Progress</button><button data-view="program">Program</button>
+</nav>
+<script>
+const program={
+Monday:{type:'strength',focus:'Lower Strength A + Upper Hypertrophy',items:[
+{name:'Box Jump',target:'3 × 3 · max quality',kind:'simple',sets:3,reps:3},
+{name:'Two-Hand KB Swing',target:'3 × 6 · explosive',kind:'lift',sets:3,reps:6,rpe:false},
+{name:'Back Squat',target:'5 × 5 · Week target RPE',kind:'lift',sets:5,reps:5,rpe:true,primary:true},
+{name:'Romanian Deadlift',target:'3 × 6 · RPE 7–8',kind:'lift',sets:3,reps:6,rpe:true},
+{name:'Incline DB Press',target:'3 × 8–10',kind:'lift',sets:3,reps:10,rpe:false},
+{name:'Chest-Supported Row',target:'3 × 8–10',kind:'lift',sets:3,reps:10,rpe:false},
+{name:'Cable Lateral Raise',target:'3 × 12–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'Incline DB Curl',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'Lying DB Skull Crusher',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'KB Farmer Carry',target:'3 × 100–120 sec @ 50 lb/hand; add weight after 3×120',kind:'carry',sets:3,seconds:100}
+]},
+Tuesday:{type:'run',focus:'Zone 2 + Strides',items:[{name:'Zone 2 Run',target:'45–60 min · conversational',kind:'run'},{name:'Strides',target:'4 × 10 sec @ ~80–85% · 60–90 sec walk',kind:'note'}]},
+Wednesday:{type:'strength',focus:'Upper Strength + Hypertrophy',items:[
+{name:'Medicine-Ball Chest Throw',target:'3 × 4 · max velocity',kind:'simple',sets:3,reps:4},
+{name:'Rotational Medicine-Ball Throw',target:'3 × 3/side',kind:'simple',sets:3,reps:3},
+{name:'Barbell Bench Press',target:'5 × 5 · Week target RPE',kind:'lift',sets:5,reps:5,rpe:true,primary:true},
+{name:'Weighted Pull-Up',target:'4 × 5 · RPE 7–8',kind:'lift',sets:4,reps:5,rpe:true,primary:true},
+{name:'Seated DB Shoulder Press',target:'3 × 8–10',kind:'lift',sets:3,reps:10,rpe:false},
+{name:'Cable Row',target:'3 × 8–12',kind:'lift',sets:3,reps:12,rpe:false},
+{name:'Cable / Pec-Deck Fly',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'Cable Lateral Raise',target:'3 × 12–20',kind:'lift',sets:3,reps:20,rpe:false},
+{name:'DB Hammer Curl',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'Cable Triceps Extension',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'KB Farmer Carry',target:'3 × 100–120 sec @ 50 lb/hand; add weight after 3×120',kind:'carry',sets:3,seconds:100}
+]},
+Thursday:{type:'rest',focus:'Recovery',items:[{name:'Recovery',target:'No structured training. Normal walking + optional mobility.',kind:'note'}]},
+Friday:{type:'strength',focus:'Lower Strength B + Upper Hypertrophy',items:[
+{name:'Standing Broad Jump',target:'3 × 3 · full recovery',kind:'simple',sets:3,reps:3},
+{name:'Single-Arm KB Clean',target:'3 × 3/side · crisp reps',kind:'lift',sets:3,reps:3,rpe:false},
+{name:'Zercher Squat',target:'4 × 5 · Week target RPE',kind:'lift',sets:4,reps:5,rpe:true,primary:true},
+{name:'Smith-Machine Bulgarian Split Squat',target:'3 × 6/leg · RPE 7–8',kind:'lift',sets:3,reps:6,rpe:true},
+{name:'Hip Thrust',target:'3 × 6–8 · RPE 7–8',kind:'lift',sets:3,reps:8,rpe:true},
+{name:'Flat DB Press',target:'3 × 8–12',kind:'lift',sets:3,reps:12,rpe:false},
+{name:'Neutral-Grip Lat Pulldown',target:'3 × 8–12',kind:'lift',sets:3,reps:12,rpe:false},
+{name:'Incline DB Curl',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'Lying DB Skull Crusher',target:'3 × 10–15',kind:'lift',sets:3,reps:15,rpe:false},
+{name:'KB Farmer Carry',target:'3 × 100–120 sec @ 50 lb/hand; add weight after 3×120',kind:'carry',sets:3,seconds:100}
+]},
+Saturday:{type:'rest',focus:'Recovery',items:[{name:'Recovery',target:'No structured training. Walking and normal activity are fine.',kind:'note'}]},
+Sunday:{type:'run',focus:'Long Zone 2',items:[{name:'Long Zone 2 Run',target:'Week-based duration · easy Zone 2',kind:'run'}]}
+};
+const weekRpe=['6–7','~7','7–7.5','7.5–8','8–8.5','~8–8.5','≤6'];
+const sundayDur=[75,85,90,100,105,90,60];
+const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let state=JSON.parse(localStorage.getItem('perfBlock1')||'null')||{week:1,logs:{},startDate:new Date().toISOString().slice(0,10)};
+function save(){localStorage.setItem('perfBlock1',JSON.stringify(state))}
+function key(w,d,n){return `w${w}-${d}-${n}`}
+function prevLog(day,name){for(let w=state.week-1;w>=1;w--){const l=state.logs[key(w,day,name)];if(l)return l}return null}
+function fmtPrev(l,kind){if(!l)return '—'; if(kind==='carry')return `${l.weight||'—'} lb · ${l.sets?.map(x=>x.seconds||'—').join('/')||'—'} sec`; if(kind==='run')return `${l.duration||'—'} min · ${l.distance||'—'} mi · HR ${l.hr||'—'}`; if(l.sets)return `${l.weight||'—'} lb · ${l.sets.map(x=>x.reps||'—').join('/')} reps${l.rpe?' · RPE '+l.rpe:''}`; return 'Logged'}
+function todayName(){return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]}
+function renderToday(day=todayName()){const p=program[day];document.getElementById('todayView').innerHTML=`<div class="card"><div class="sectionTitle"><div><div class="small">${day}</div><h2>${p.focus}</h2></div><span class="tag">Week ${state.week}</span></div>${day==='Sunday'?`<div class="note">This week's long-run target: <strong>${sundayDur[state.week-1]} min</strong></div>`:''}${p.items.map((x,i)=>exerciseHtml(day,x,i)).join('')}<button class="primary" onclick="saveWorkout('${day}')">Save ${day}</button></div>`;attachInputs(day)}
+function exerciseHtml(day,x,i){const prev=prevLog(day,x.name);let inner='';if(x.kind==='lift'||x.kind==='simple'){inner=`<div class="labels"><span>Set</span><span>Weight</span><span>Reps</span><span>RPE</span><span>Done</span></div>`+Array.from({length:x.sets},(_,s)=>`<div class="setrow"><span class="setnum">${s+1}</span><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="weight" placeholder="lb"><input inputmode="numeric" data-x="${i}" data-s="${s}" data-f="reps" value="${x.reps||''}"><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="rpe" placeholder="${x.rpe?'RPE':'—'}" ${x.rpe?'':'disabled'}><input type="checkbox" data-x="${i}" data-s="${s}" data-f="done"></div>`}
+else if(x.kind==='carry'){inner=`<div class="labels carry"><span>Set</span><span>Weight</span><span>Seconds</span><span>Done</span></div>`+Array.from({length:x.sets},(_,s)=>`<div class="setrow carry"><span class="setnum">${s+1}</span><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="weight" value="50"><input inputmode="numeric" data-x="${i}" data-s="${s}" data-f="seconds" value="${x.seconds}"><input type="checkbox" data-x="${i}" data-s="${s}" data-f="done"></div>`)}
+else if(x.kind==='run'){inner=`<div class="setrow run"><input inputmode="numeric" data-x="${i}" data-f="duration" placeholder="Minutes"><input inputmode="decimal" data-x="${i}" data-f="distance" placeholder="Miles"><input inputmode="numeric" data-x="${i}" data-f="hr" placeholder="Avg HR"></div><textarea data-x="${i}" data-f="notes" rows="2" placeholder="Optional notes / RPE"></textarea>`}
+else inner=`<div class="note">${x.target}</div>`;
+return `<div class="exercise"><div class="exhead"><div><div class="exname">${x.name}</div><div class="target">${x.target}${x.primary?` · Week ${state.week} RPE ${weekRpe[state.week-1]}`:''}</div></div><div class="small">Prev: ${fmtPrev(prev,x.kind)}</div></div>${inner}</div>`}
+function attachInputs(day){document.querySelectorAll('#todayView input,#todayView textarea').forEach(el=>{el.addEventListener('change',()=>{})})}
+function saveWorkout(day){const p=program[day];p.items.forEach((x,i)=>{if(x.kind==='note')return; const els=[...document.querySelectorAll(`[data-x="${i}"]`)];let log={kind:x.kind,date:new Date().toISOString()};if(x.kind==='run'){els.forEach(e=>log[e.dataset.f]=e.value);}
+else{const sets=[];for(let s=0;s<x.sets;s++){const se={};els.filter(e=>+e.dataset.s===s).forEach(e=>se[e.dataset.f]=e.type==='checkbox'?e.checked:e.value);sets.push(se)}log.sets=sets;log.weight=sets[0]?.weight||'';const rpes=sets.map(s=>parseFloat(s.rpe)).filter(Boolean);if(rpes.length)log.rpe=rpes[rpes.length-1]}state.logs[key(state.week,day,x.name)]=log});save();renderToday(day);renderProgress();alert('Workout saved');}
+function renderWeek(){document.getElementById('weekView').innerHTML=`<div class="sectionTitle"><h2>Week ${state.week}</h2><div class="row"><button class="secondary" onclick="changeWeek(-1)">←</button><button class="secondary" onclick="changeWeek(1)">→</button></div></div><div class="grid">${days.map(d=>`<div class="card day ${program[d].type==='rest'?'rest':''} ${d===todayName()?'today':''}" onclick="openDay('${d}')"><strong>${d}</strong><div class="small">${program[d].focus}</div>${d==='Sunday'?`<div class="small" style="margin-top:8px">${sundayDur[state.week-1]} min</div>`:''}</div>`).join('')}</div>`}
+function openDay(d){switchView('today');renderToday(d)}function changeWeek(n){state.week=Math.max(1,Math.min(7,state.week+n));save();document.getElementById('weekPill').textContent=`Week ${state.week}`;renderWeek();renderToday();renderProgress();}
+function renderProgress(){const majors=['Back Squat','Zercher Squat','Barbell Bench Press','Weighted Pull-Up','Smith-Machine Bulgarian Split Squat','KB Farmer Carry'];let html=`<div class="sectionTitle"><h2>Progress</h2></div><div class="card">`;
+majors.forEach(name=>{let latest=null,day='';for(let w=7;w>=1&&!latest;w--)for(const d of days){const l=state.logs[key(w,d,name)];if(l){latest=l;day=d;break}}html+=`<div class="metric"><span>${name}</span><strong>${latest?fmtPrev(latest,latest.kind):'No data yet'}</strong></div>`});html+=`</div>`;
+const carryLogs=Object.entries(state.logs).filter(([k,v])=>k.includes('KB Farmer Carry'));let best=0,wt=50;carryLogs.forEach(([k,l])=>{l.sets?.forEach(s=>{best=Math.max(best,+s.seconds||0);wt=+s.weight||wt})});html+=`<div class="card"><div class="sectionTitle"><h2>Carry Goal</h2><span class="tag">${wt} lb/hand</span></div><div class="small">Best logged duration</div><div style="font-size:28px;font-weight:800;margin:4px 0">${best||0} / 120 sec</div><div class="progressBar"><span style="width:${Math.min(100,(best/120)*100)}%"></span></div>${best>=120?`<div class="note success" style="margin-top:10px">You’ve reached 120 seconds on at least one set. Increase weight once all three sets reach 120 seconds.</div>`:''}</div>`;
+html+=`<div class="row"><button class="secondary" onclick="exportData()">Export Data</button><label class="secondary" style="text-align:center;cursor:pointer">Import Data<input class="hidden" type="file" accept="application/json" onchange="importData(event)"></label></div>`;document.getElementById('progressView').innerHTML=html}
+function renderProgram(){document.getElementById('programView').innerHTML=`<div class="sectionTitle"><h2>Block 1 Program</h2></div><div class="card"><div class="metric"><span>Week 1</span><strong>RPE 6–7</strong></div><div class="metric"><span>Week 2</span><strong>~7</strong></div><div class="metric"><span>Week 3</span><strong>7–7.5</strong></div><div class="metric"><span>Week 4</span><strong>7.5–8</strong></div><div class="metric"><span>Week 5</span><strong>8–8.5</strong></div><div class="metric"><span>Week 6</span><strong>~8–8.5</strong></div><div class="metric"><span>Week 7</span><strong>Deload ≤6</strong></div></div><div class="card"><strong>Accessory progression</strong><p class="small">Use double progression. Stay within the prescribed rep range; once you reach the top of the range across all sets with good technique, increase load next time.</p></div><div class="card"><strong>Farmer carries</strong><p class="small">3 sets at 50 lb/hand. Build from 100 seconds toward 120 seconds. Once all three sets reach 120 seconds with good posture and grip, move up in weight and return near 100 seconds.</p></div><div class="card"><strong>Running progression</strong><p class="small">Tuesday stays 45–60 min Zone 2 + four relaxed 10-sec strides. Sunday long run progresses 75 → 85 → 90 → 100 → 105 → 90 min, then 60 min during the deload.</p></div>`}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='performance-block1-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save();location.reload()}catch{alert('Could not read backup file')}};r.readAsText(f)}
+function switchView(v){['today','week','progress','program'].forEach(x=>document.getElementById(x+'View').classList.toggle('hidden',x!==v));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='week')renderWeek();if(v==='progress')renderProgress();if(v==='program')renderProgram()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+document.getElementById('weekPill').textContent=`Week ${state.week}`;renderToday();renderWeek();renderProgress();renderProgram();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
