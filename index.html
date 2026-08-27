@@ -81,13 +81,19 @@ Sunday:{type:'run',focus:'Long Zone 2',items:[{name:'Long Zone 2 Run',target:'We
 const weekRpe=['6–7','~7','7–7.5','7.5–8','8–8.5','~8–8.5','≤6'];
 const sundayDur=[75,85,90,100,105,90,60];
 const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-let state=JSON.parse(localStorage.getItem('perfBlock1')||'null')||{week:1,logs:{},startDate:new Date().toISOString().slice(0,10)};
+const CYCLE_START='2026-08-31';
+let state=JSON.parse(localStorage.getItem('perfBlock1')||'null')||{week:1,logs:{},startDate:CYCLE_START};
+state.startDate=CYCLE_START;
+function localDateOnly(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function parseLocalDate(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function calendarWeek(){const diff=Math.floor((localDateOnly()-parseLocalDate(state.startDate))/86400000);return diff<0?0:Math.min(7,Math.floor(diff/7)+1)}
+const autoWeek=calendarWeek(); if(autoWeek>0)state.week=autoWeek;
 function save(){localStorage.setItem('perfBlock1',JSON.stringify(state))}
 function key(w,d,n){return `w${w}-${d}-${n}`}
 function prevLog(day,name){for(let w=state.week-1;w>=1;w--){const l=state.logs[key(w,day,name)];if(l)return l}return null}
 function fmtPrev(l,kind){if(!l)return '—'; if(kind==='carry')return `${l.weight||'—'} lb · ${l.sets?.map(x=>x.seconds||'—').join('/')||'—'} sec`; if(kind==='run')return `${l.duration||'—'} min · ${l.distance||'—'} mi · HR ${l.hr||'—'}`; if(l.sets)return `${l.weight||'—'} lb · ${l.sets.map(x=>x.reps||'—').join('/')} reps${l.rpe?' · RPE '+l.rpe:''}`; return 'Logged'}
 function todayName(){return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]}
-function renderToday(day=todayName()){const p=program[day];document.getElementById('todayView').innerHTML=`<div class="card"><div class="sectionTitle"><div><div class="small">${day}</div><h2>${p.focus}</h2></div><span class="tag">Week ${state.week}</span></div>${day==='Sunday'?`<div class="note">This week's long-run target: <strong>${sundayDur[state.week-1]} min</strong></div>`:''}${p.items.map((x,i)=>exerciseHtml(day,x,i)).join('')}<button class="primary" onclick="saveWorkout('${day}')">Save ${day}</button></div>`;attachInputs(day)}
+function renderToday(day=todayName()){if(calendarWeek()===0 && day===todayName()){const start=parseLocalDate(state.startDate);const opts={weekday:'long',month:'long',day:'numeric'};document.getElementById('todayView').innerHTML=`<div class="card"><div class="small">Cycle 1 · Block 1</div><h2>Starts ${start.toLocaleDateString(undefined,opts)}</h2><p class="small">Your first workout is Monday — Lower Strength A. Week 1 will run August 31 through September 6.</p><button class="primary" onclick="openDay('Monday')">Preview Monday workout</button></div>`;return;}const p=program[day];document.getElementById('todayView').innerHTML=`<div class="card"><div class="sectionTitle"><div><div class="small">${day}</div><h2>${p.focus}</h2></div><span class="tag">Week ${state.week}</span></div>${day==='Sunday'?`<div class="note">This week's long-run target: <strong>${sundayDur[state.week-1]} min</strong></div>`:''}${p.items.map((x,i)=>exerciseHtml(day,x,i)).join('')}<button class="primary" onclick="saveWorkout('${day}')">Save ${day}</button></div>`;attachInputs(day)}
 function exerciseHtml(day,x,i){const prev=prevLog(day,x.name);let inner='';if(x.kind==='lift'||x.kind==='simple'){inner=`<div class="labels"><span>Set</span><span>Weight</span><span>Reps</span><span>RPE</span><span>Done</span></div>`+Array.from({length:x.sets},(_,s)=>`<div class="setrow"><span class="setnum">${s+1}</span><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="weight" placeholder="lb"><input inputmode="numeric" data-x="${i}" data-s="${s}" data-f="reps" value="${x.reps||''}"><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="rpe" placeholder="${x.rpe?'RPE':'—'}" ${x.rpe?'':'disabled'}><input type="checkbox" data-x="${i}" data-s="${s}" data-f="done"></div>`)}
 else if(x.kind==='carry'){inner=`<div class="labels carry"><span>Set</span><span>Weight</span><span>Seconds</span><span>Done</span></div>`+Array.from({length:x.sets},(_,s)=>`<div class="setrow carry"><span class="setnum">${s+1}</span><input inputmode="decimal" data-x="${i}" data-s="${s}" data-f="weight" value="50"><input inputmode="numeric" data-x="${i}" data-s="${s}" data-f="seconds" value="${x.seconds}"><input type="checkbox" data-x="${i}" data-s="${s}" data-f="done"></div>`)}
 else if(x.kind==='run'){inner=`<div class="setrow run"><input inputmode="numeric" data-x="${i}" data-f="duration" placeholder="Minutes"><input inputmode="decimal" data-x="${i}" data-f="distance" placeholder="Miles"><input inputmode="numeric" data-x="${i}" data-f="hr" placeholder="Avg HR"></div><textarea data-x="${i}" data-f="notes" rows="2" placeholder="Optional notes / RPE"></textarea>`}
@@ -107,7 +113,7 @@ function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save();location.reload()}catch{alert('Could not read backup file')}};r.readAsText(f)}
 function switchView(v){['today','week','progress','program'].forEach(x=>document.getElementById(x+'View').classList.toggle('hidden',x!==v));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));if(v==='week')renderWeek();if(v==='progress')renderProgress();if(v==='program')renderProgram()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-document.getElementById('weekPill').textContent=`Week ${state.week}`;renderToday();renderWeek();renderProgress();renderProgram();
+document.getElementById('weekPill').textContent=calendarWeek()===0?'Starts Aug 31':`Week ${state.week}`;save();renderToday();renderWeek();renderProgress();renderProgram();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
